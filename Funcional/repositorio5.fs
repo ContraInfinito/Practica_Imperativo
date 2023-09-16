@@ -1,7 +1,5 @@
 module Laberinto
 
-open Containers
-
 // Representación del laberinto con paredes
 let laberintoConParedes = [
     (1, [2; 3]);
@@ -20,12 +18,20 @@ let crearGrafo laberintoConParedes =
         (fun (posicion, vecinos) -> (string posicion, List.map string vecinos))
         laberintoConParedes
 
+// Función para buscar vecinos en el grafo
+let rec buscarVecinos grafo nodo =
+    match grafo with
+    | [] -> []
+    | (n, vecinos) :: rest ->
+        if n = nodo then vecinos
+        else buscarVecinos rest nodo
+
 // Función para realizar una búsqueda en profundidad (DFS) en el grafo
 let rec dfs grafo inicio fin ruta rutas =
     if inicio = fin then
         List.rev (inicio::ruta)::rutas // Llegamos al final, agregamos la ruta a la lista de rutas
     else
-        let vecinos = List.assoc inicio grafo
+        let vecinos = buscarVecinos grafo inicio
         List.foldBack
             (fun vecino acc ->
                 if not (List.contains vecino ruta) then
@@ -46,7 +52,7 @@ let encontrarRutaMasCorta grafo inicio fin =
     | [] -> None // No hay ruta
     | _ ->
         let rutasOrdenadas = List.sortBy List.length rutas
-        Some (List.hd rutasOrdenadas)
+        Some (List.head rutasOrdenadas)
 
 // Ejemplo de uso
 let grafoLaberinto = crearGrafo laberintoConParedes

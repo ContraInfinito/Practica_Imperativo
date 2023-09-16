@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "lI/yUHd0rpIiGpR8CEMNtmcN+Vfg+TXoKajAmehIGqRM+joNY2De8ryOhel4uzoEWXQ9PUBSYXpEGLX2HId3kw==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\mathe\\Documents\\TEC\\II Semestre\\Lenguajes de Programación\\F#\\Funcional\\Funcional.fsproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\mathe\\.nuget\\packages\\fsharp.core\\7.0.400\\fsharp.core.7.0.400.nupkg.sha512"
+  ],
+  "logs": []
+}

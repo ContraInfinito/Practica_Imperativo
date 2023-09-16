@@ -1,8 +1,41 @@
-module ShortestPath
+module repositorio4
 
-open Containers
+open System.Collections.Generic
 
-// Grafo de prueba con pesos en lugar de una lista de adyacencia
+let rec dfsConPesos ini fin grafo =
+    let rec dfsAux ruta pesoActual nodoActual =
+        if List.isEmpty ruta then
+            []
+        elif nodoActual = fin then
+            // Si llegamos al destino, retornamos la ruta
+            [(List.rev ruta)]
+        else
+            // Extender la ruta con vecinos no visitados
+            let vecinos =
+                match List.tryFind (fun (nodo, _) -> nodo = nodoActual) grafo with
+                | Some (_, vecinos) -> vecinos
+                | None -> []
+            
+            let rutasExtendidas =
+                List.filter (fun (vecino, _) -> not (List.contains vecino ruta)) vecinos
+                |> List.collect (fun (vecino, pesoArista) ->
+                    let nuevoPeso = pesoActual + pesoArista
+                    let nuevaRuta = vecino :: ruta
+                    dfsAux nuevaRuta nuevoPeso vecino)
+            
+            rutasExtendidas
+
+    // Iniciar la búsqueda en profundidad desde el nodo inicial
+    let rutas = dfsAux [ini] 0 ini
+
+    // Encontrar la ruta más corta basándonos en la suma de pesos
+    match rutas with
+    | [] -> None // No hay ruta
+    | _ ->
+        let rutaMasCorta = List.minBy List.length rutas
+        Some (List.rev rutaMasCorta) // Invertir la ruta para que sea del inicio al fin
+
+// Ejemplo de uso
 let grafoConPesos = [
     ("i", [("a", 3); ("b", 6)]);
     ("a", [("i", 3); ("c", 6); ("d", 5)]);
@@ -13,46 +46,8 @@ let grafoConPesos = [
     ("x", [("c", 7)])
 ]
 
-// Función para obtener el peso de una arista entre dos nodos
-let obtenerPeso nodo1 nodo2 grafo =
-    match List.tryFind (fun (nodo, peso) -> nodo = nodo2) (List.assoc nodo1 grafo) with
-    | Some (_, peso) -> peso
-    | None -> 0 // Peso por defecto si no se encuentra la arista
-
-// Función para generar vecinos con pesos
-let vecinosConPesos nodo grafo =
-    match List.assoc_opt nodo grafo with
-    | Some vecinosConPesos -> vecinosConPesos
-    | None -> []
-
-// Función para extender una ruta con peso acumulado
-let extenderConPesos (ruta, peso) grafo =
-    let nodoActual = List.head ruta in
-    let vecinos = vecinosConPesos nodoActual grafo in
-    List.choose
-        (fun (vecino, pesoArista) ->
-            if List.contains vecino ruta then None
-            else
-                let nuevoPeso = peso + pesoArista in
-                Some (vecino::ruta, nuevoPeso))
-        vecinos
-
-// Función principal de búsqueda en profundidad con seguimiento de pesos
-let dfsConPesos ini fin grafo =
-    let rec dfsAux fin ruta grafo =
-        if List.isEmpty ruta then []
-        elif List.head ruta = fin then
-            List.rev ruta
-        else
-            let rutasExtendidas = extenderConPesos ruta grafo in
-            let rutasOrdenadas = List.sortBy (fun (_, peso) -> peso) rutasExtendidas in
-            match rutasOrdenadas with
-            | [] -> []
-            | rutaExtendida :: rest ->
-                dfsAux fin rutaExtendida grafo
-    dfsAux fin [ini] grafo
-
-// Ejemplo de uso
 let resultado = dfsConPesos "i" "x" grafoConPesos
 
-printfn "%A" resultado // Debería imprimir ["i"; "a"; "d"; "f"; "x"]
+match resultado with
+| Some ruta -> printfn "Ruta más corta: %A" ruta
+| None -> printfn "No hay ruta"

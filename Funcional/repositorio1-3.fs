@@ -24,18 +24,22 @@ printfn "%A" result2 // Should print [0; 0; 1; 2; 3]
 printfn "%A" result3 // Should print [0; 0; 0; 0; 0]
 
 //2
-let filterSubstrings substring list =
-    let containsSubstring str = 
-        String.contains substring str
-    
-    List.filter containsSubstring list
+let rec containsSubstring substring str =
+    match substring, str with
+    | _, "" -> false
+    | "", _ -> true
+    | sub, s when s.StartsWith(sub) ->
+        true
+    | sub, s ->
+        containsSubstring substring (s.Substring(1))
 
-// Example of usage
+let filterSubstrings substring list =
+    List.filter (containsSubstring substring) list
+
+// Ejemplo de uso
 let result = filterSubstrings "la" ["la casa"; "el perro"; "pintando la cerca"]
 
-printfn "%A" result // Should print ["la casa"; "pintando la cerca"]
-
-
+printfn "%A" result // Debería imprimir ["la casa"; "pintando la cerca"]
 
 //3
 let n_esimo n lista =
@@ -43,19 +47,18 @@ let n_esimo n lista =
     let elementosConIndices = List.zip indices lista // Combinar índices y elementos
 
     let elementoDeseado =
-        List.head (List.map (fun (index, elem) -> if index = n then Some elem else None) elementosConIndices)
+        List.tryFind (fun (index, _) -> index = n) elementosConIndices
 
     match elementoDeseado with
-    | Some result -> result // Si se encuentra un elemento, devolverlo
-    | _ -> false // Si no se encuentra o hay duplicados, devolver false
+    | Some (_, result) -> Some result // Si se encuentra un elemento, devolverlo
+    | None -> None // Si no se encuentra o hay duplicados, devolver None
 
 // Ejemplos de uso
 let resultado1 = n_esimo 2 [1;2;3;4;5]
 let resultado2 = n_esimo 3 [1;2;3;4;5]
 let resultado3 = n_esimo 6 [1;2;3;4;5]
 
-printfn "%A" resultado1 // Debería imprimir 3
-printfn "%A" resultado2 // Debería imprimir 4
-printfn "%A" resultado3 // Debería imprimir false
+printfn "%A" resultado1 // Debería imprimir Some 3
+printfn "%A" resultado2 // Debería imprimir Some 4
+printfn "%A" resultado3 // Debería imprimir None
 
-//4
